@@ -14,6 +14,13 @@ import io.flutter.plugin.common.MethodChannel;
 public class MainActivity extends FlutterActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        // Defense-in-depth against task hijacking (e.g., StrandHogg 2.0).
+        // If this activity is not the root of a new task, it might have been launched
+        // into a malicious task. In such cases, finish the activity immediately.
+        if (!isTaskRoot()) {
+            finish();
+            return;
+        }
         super.onCreate(savedInstanceState);
 
         final BinaryMessenger messenger = getFlutterEngine().getDartExecutor().getBinaryMessenger();
